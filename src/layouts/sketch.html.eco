@@ -1,0 +1,261 @@
+---
+layout: bare
+---
+
+<div id="fixed" class="container-fluid" style="position:fixed;top:51px;left:0;right:0;bottom:0;">
+<div class="row-fluid">
+<div class="col-md-3">
+  <br>
+  <% for document in @getCollection('tools').toJSON(): %>
+    <% if not firstlink then firstlink = document.url %>
+    <% thumb = document.thumb or 'default' %>
+    <% if document.redirect: %>
+      <a class="indextile" target="tool" href="<%= document.redirect %>">
+      <span><img src="/images/thumbs/<%= thumb %>.png"></span>
+      <span><%= document.title %><br><%= document.description %></span></a>
+    <% else: %>
+      <a class="indextile" target="reference" href="<%= document.url %>">
+      <span><img src="/images/thumbs/<%= thumb %>.png"></span>
+      <span><%= document.title %></span></a>
+    <% end %>
+  <% end %>
+</div>
+<div class="col-md-9">
+<div id="instructions" class="instruction container-margins">
+<h2><%= @document.title %> <small><%= @document.subtitle %></small></h2>
+<p><%- @document.mission %>
+</div>
+<div id="codeframe" class="container-margins" style="flex-grow:1">
+</div>
+</div>
+</div>
+
+<div id="overlay">
+<div class="overlay-box-50">
+<iframe id="refframe" name="reference" class="heavyframe"></iframe>
+<div class="closebox glyphicon glyphicon-remove-circle"></div>
+</div>
+</div>
+
+<xmp id="starter" class="data"><%- @document.code %></xmp>
+</div>
+
+<xmp id="setupcode" style="display:none">
+# common setup code here.
+window.print = ->
+  write 'Try using <b>write</b> instead of <b>print</b>.'
+# remove default error handling UI.
+window.removeEventListener 'error', see
+thepopup = null
+popup = (t) ->
+  if $('#error-advice').length
+    thepopup = $('#error-advice')
+  if thepopup
+    thepopup.html t
+    return
+  thepopup = write """
+    <center>#{t}</center>
+  """
+  thepopup.css
+    background: rgba(240,240,240,0.8)
+    fontFamily: 'Arial'
+    margin: '5px 15%'
+    padding: '8px'
+    borderRadius: '8px'
+    boxShadow: '0 0 5px dimgray'
+
+hints = null
+lasterrorevent = null
+
+$(window).on 'error', (e) ->
+  lasterrorevent = e
+  if hints then do hints
+
+<%- @content %>
+</xmp>
+</article>
+<script src="//pencilcode.net/lib/pencilcodeembed.js"></script>
+<script>
+
+function fixbase() {
+  if (!window.$) return; // skip if jquery is undefined.
+  if ($('base').length == 0) {
+    $(document.head).append('<base>');
+  }
+  $('base').attr('href', "BASEURL");
+}
+var fixbasescript =
+  fixbase.toString().replace('BASEURL', location.href) + "\nfixbase();";
+
+$('.carousel').carousel();
+function updatePagers() {
+  var self = $(this);
+  self.children('.carousel-control').show();
+  if ($('.carousel-inner .item:first').hasClass('active')) {
+    self.children('.left.carousel-control').hide();
+  }
+  if ($('.carousel-inner .item:last').hasClass('active')) {
+    self.children('.right.carousel-control').hide();
+  }
+}
+$('#instructions').each(updatePagers).on('slid', '', updatePagers);
+
+function storageName() {
+  return 'gym:' + location.pathname;
+}
+
+function loadStorage() {
+  try {
+    return localStorage.getItem(storageName()) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveStorage(c) {
+  try {
+    if (!c) {
+      localStorage.removeItem();
+    } else {
+      localStorage.setItem(storageName(), c);
+    }
+  } catch (e) { }
+}
+
+var cf = document.getElementById('codeframe'),
+    starter = document.getElementById('starter'),
+    originalCode = starter.textContent,
+    code = loadStorage() || originalCode,
+    modified = (code.trim() != originalCode.trim()),
+    setup = document.getElementById('setupcode').innerHTML,
+    pce = new PencilCodeEmbed(cf);
+
+pce.on('update', function(c) {
+  $('#reset').toggleClass('btn-highlight', (c.trim() != originalCode.trim()));
+  saveStorage(c);
+  updateShareButton(c);
+});
+
+var mode = '';
+<% if @document.mode: %>
+mode = "<%= @document.mode %>";
+<% end %>
+
+pce.on('load', function() {
+  pce.setupScript([
+    {code: fixbasescript, type: 'text/javascript'},
+    {code: setup, type: 'text/coffeescript'}
+  ]);
+  pce.setCode(code);
+});
+
+pce.beginLoad({mode:mode});
+
+$('#more').click(function() { $('#instructions').carousel('next'); });
+$('#reset').click(function() {
+  pce.setCode(originalCode);
+});
+
+function doresize() {
+  $('#codeframe').height(
+    $('#fixed').height() -
+    $('#instructions').outerHeight() - 20);
+}
+
+var sharedCode = null;
+var sharedUrl = null;
+
+function updateShareButton(c) {
+  if ((c == sharedCode) != /ok/.test($('#share span').attr('class'))) {
+    $('#share span').attr('class', (c == sharedCode) ?
+       'glyphicon glyphicon-ok' : 'glyphicon glyphicon-cloud-upload');
+    if (c == sharedCode) {
+      $('#share').tooltip({
+        title: "View Shared Page",
+      });
+      $('#share').tooltip('show');
+    } else {
+      $('#share').tooltip({
+        title: "Share on Gymstage",
+      });
+    }
+  }
+}
+
+$('#share').click(function() {
+  var name, prefix, payload, code;
+  code = pce.getCode();
+  if (code == sharedCode && sharedUrl) {
+    window.open(sharedUrl);
+    return;
+  }
+  name = prompt(
+    'To share your creation, give it a short name.\n' +
+    'It will be posted with everybody else\'s shared ' +
+    'projects on gymstage.pencilcode.net.\n' +
+    'Make the name distinctive so you can find it.');
+  name = name.replace(/\W+/g, '_').replace(/^_+|_+$/g, '');
+  if (!name) {
+    return;
+  }
+  prefix = (60466175 -
+      (Math.floor((new Date).getTime()/1000) % (24*60*60*500))).toString(36);
+  name = prefix + "-" + name;
+  payload = {
+    data: code,
+    key: 943
+  }
+  $.ajax({
+    url: 'http://gymstage.pencilcode.net/save/' + name,
+    data: payload,
+    dataType: 'json',
+    type: 'GET',
+    success: function(m) {
+      if (m.error) {
+        alert('error: ' + m.error);
+      } else {
+        sharedCode = code;
+        sharedUrl ='http://gymstage.pencilcode.net/home/' + name;
+        updateShareButton(pce.getCode());
+      }
+    }
+  });
+});
+
+
+$('#save').click(function() {
+  $('#tlayer').hide();
+  pce.save();
+});
+
+$('.btn[title]').tooltip();
+
+$('#refframe').on('load', function() {
+  try {
+    // Do nothing if there is nothing to show.
+    if (this.contentWindow.location.href == 'about:blank') { return; }
+  } catch (e) { }
+  if (!$('#overlay').is(':visible')) {
+    var height = $('#overlay .overlay-box-50').height();
+    $('#overlay .overlay-box-50').css({height: 0});
+    $('#overlay').show();
+    $('#overlay .overlay-box-50').animate({height: height});
+  }
+});
+
+$('#overlay .closebox, #overlay').on('click', function() {
+  $('#overlay .overlay-box-50').animate({'height': 0})
+  .queue(function(next) {
+    $('#overlay').hide();
+    $('#overlay .overlay-box-50').css({height: ''});
+    $('#refframe').each(function() {
+      this.contentWindow.location.href = 'about:blank';
+    });
+    next();
+  });
+});
+
+doresize();
+$(window).resize(doresize);
+
+</script>

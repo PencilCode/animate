@@ -1,8 +1,8 @@
 {
-  "name": "fieldhouse",
+  "name": "animate",
   "version": "0.0.1",
   "description": "Activity website for Pencil Code",
-  "homepage": "https://github.com/PencilCode/fieldhouse",
+  "homepage": "https://github.com/PencilCode/animate",
   "keywords": [
     "pencil",
     "coffeescript",
@@ -21,18 +21,18 @@
     "npm": "1.2"
   },
   "dependencies": {
-    "docpad": "~6.66.0",
-    "docpad-plugin-coffeescript": "~2.4.0",
-    "docpad-plugin-eco": "~2.0.3",
-    "docpad-plugin-less": "~2.4.1",
-    "docpad-plugin-marked": "~2.2.1",
-    "docpad-plugin-partials": "~2.9.1",
-    "docpad-plugin-related": "~2.2.2",
-    "docpad-plugin-stylus": "~2.6.0",
-    "docpad-plugin-text": "~2.3.2"
+    "docpad": "latest",
+    "docpad-plugin-coffeescript": "latest",
+    "docpad-plugin-eco": "latest",
+    "docpad-plugin-less": "latest",
+    "docpad-plugin-marked": "latest",
+    "docpad-plugin-partials": "latest",
+    "docpad-plugin-related": "latest",
+    "docpad-plugin-stylus": "latest",
+    "docpad-plugin-text": "latest"
   },
   "devDependencies": {
-    "docpad-plugin-livereload": "~2.6.0"
+    "docpad-plugin-livereload": "latest"
   },
   "main": "node_modules/docpad/bin/docpad-server",
   "scripts": {

@@ -1,0 +1,143 @@
+---
+layout: bare
+---
+<style>
+.blueimp-gallery>.prev, .blueimp-gallery>.next {
+  top:0;bottom:0;margin-top:auto;margin-bottom:auto;
+  width:70px;height:70px;border-radius:38px;
+  font-size:100px;line-height:50px;
+}
+div[data-class] {
+  display: none
+}
+.blueimp-gallery>.slides>.slide>.slide-content {
+  background: rgb(25,25,25);
+  max-height: 67%;
+}
+.description,.caption {
+  display: none;
+}
+.blueimp-gallery-controls .description {
+  top:40px;
+}
+.blueimp-gallery-controls .caption {
+  bottom:0px;;
+}
+.blueimp-gallery-controls .description, .blueimp-gallery-controls .caption,
+.blueimp-gallery-controls h3.title {
+  display:block;
+  position:absolute;
+  left:15px;
+  right:15px;
+  z-index:1;
+  background: rgba(25, 25, 25, .9);
+  padding:5px;
+  color:#ccc;
+  opacity:.67;
+}
+.blueimp-gallery-controls h3.title {
+  top:0px;
+  height:40px;
+  color:#fff;
+  opacity:1;
+}
+.blueimp-gallery-controls .description:hover,
+.blueimp-gallery-controls .caption:hover,
+.blueimp-gallery-controls h3.title:hover {
+  color:#fff;
+  opacity:1;
+}
+</style>
+
+<div id="blueimp-gallery-carousel" class="blueimp-gallery blueimp-gallery-carousel blueimp-gallery-controls" style="position:absolute;top:51px;bottom:0;padding:0;margin:0">
+    <div class="slides"></div>
+    <h3 class="title"></h3>
+    <div class="description"></div>
+    <div class="caption"></div>
+    <a class="prev">‹</a>
+    <a class="next">›</a>
+    <a class="play-pause"></a>
+</div>
+<div id="links" style="display:none">
+<% for slide in (@document.slides or []): %>
+  <div>
+  <a href="<%= slide.url %>" title="<%= slide.title or slide.url %>"></a>
+  <% if slide.description: %>
+    <div data-class="description">
+    <%- slide.description %>
+    </div>
+  <% end %>
+  <% if slide.caption: %>
+    <div data-class="caption">
+    <%- slide.caption %>
+    </div>
+  <% end %>
+  </div>
+<% end %>
+
+<script>
+var baseHandleSlide = blueimp.Gallery.prototype.handleSlide,
+    baseCreateElement = blueimp.Gallery.prototype.createElement;
+$.extend(blueimp.Gallery.prototype, {
+  handleSlide: function (index) {
+    baseHandleSlide.call(this, index);
+    this.setCaptions(index);
+  },
+  setCaptions: function(index) {
+    $(this.container).children('div').not('.slides').html('');
+    var captions = $(this.slides[index]).find('[data-class]');
+    var container = this.container;
+    captions.each(function(i, e) {
+      var c = e.getAttribute('data-class');
+      $(container).children('.' + c).html($(e).html());
+    });
+  },
+  createElement: function (obj, callback) {
+    var frag = document.createDocumentFragment();
+    var elt = baseCreateElement.call(this, obj, callback);
+    console.log('added base element', elt);
+    frag.appendChild(elt);
+    while (obj.nextElementSibling) {
+      obj = obj.nextElementSibling;
+      if (obj.hasAttribute('data-class')) {
+        var copy = obj.cloneNode(true);
+        frag.appendChild(copy);
+      } else {
+        break;
+      }
+    }
+    console.log('created', frag);
+    return frag;
+  },
+  // Fix a bug: delete sibling elements inside a slide.
+  unloadElements: function (index) {
+    var i,
+        slide,
+        diff;
+    for (i in this.elements) {
+      if (this.elements.hasOwnProperty(i)) {
+        diff = Math.abs(index - i);
+        if (diff > this.options.preloadRange &&
+            diff + this.options.preloadRange < this.num) {
+          slide = this.slides[i];
+          // This while is added.
+          while (slide.firstChild) {
+            slide.removeChild(slide.firstChild);
+          }
+          delete this.elements[i];
+        }
+      }
+    }
+  }
+});
+
+$(function() {
+  blueimp.Gallery($('#links > div > a'), {
+    container: '#blueimp-gallery-carousel',
+    carousel: true,
+    stretchImages: true,
+    startSlideshow: false
+  });
+});
+</script>
+

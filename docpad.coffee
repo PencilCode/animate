@@ -40,6 +40,8 @@ docpadConfig = {
       # Styles
       styles: [
         "/styles/twitter-bootstrap.css"
+        "//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/css/jquery.ui.all.css"
+        "//blueimp.github.io/Gallery/css/blueimp-gallery.min.css"
         "/styles/style.css"
       ]
 
@@ -47,7 +49,9 @@ docpadConfig = {
       scripts: [
         "//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"
         "//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"
+        "//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"
         "/vendor/twitter-bootstrap/dist/js/bootstrap.min.js"
+        "//blueimp.github.io/Gallery/js/blueimp-gallery.js"
         "/scripts/script.js"
       ]
 
@@ -93,6 +97,10 @@ docpadConfig = {
     examples: (database) ->
       database.findAllLive(
           {codeLevel: $exists: true}, [codeLevel:1, codeOrder:1])
+
+    tools: (database) ->
+      database.findAllLive(
+          {toolOrder: $exists: true}, [toolOrder:1])
 
     references: (database) ->
       database.findAllLive(
