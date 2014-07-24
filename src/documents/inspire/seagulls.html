@@ -1,0 +1,105 @@
+<style>
+body { margin: 0; padding: 0 }
+#embed iframe { border: 0 }
+</style>
+<div id="embed" style="width:100%;height:100%"></div>
+<script src="http://pencilcode.net/lib/pencilcodeembed.js"></script>
+<xmp>
+write """
+<audio autoplay>
+<source src="http://a.clyp.it/5rd2kezv.mp3" type="audio/mpeg">
+Your browser does not support this audio format.
+</audio>
+"""
+  
+car = new Sprite
+car.wear "http://ranwhenparkeddotnet.files.wordpress.com/2013/12/volvo-240-glt.jpg"
+car.scale 0.5
+car = new Sprite
+
+winnie = new Sprite
+winnie.wear "http://i.imgur.com/9VNI4BP.png"
+winnie.scale .6
+winnie.slide 25,26
+
+bird = new Sprite
+bird.wear "http://th03.deviantart.net/fs71/200H/i/2014/083/7/a/seagull_hovering_png_by_evelivesey-d5kqnyv.png"
+bird.scale 0.5
+bird.await
+bird.fd 500
+bird.lt 90
+bird.fd 500
+bird.speed .5
+
+bird2 = new Sprite
+bird2.wear "http://th03.deviantart.net/fs71/200H/i/2014/083/7/a/seagull_hovering_png_by_evelivesey-d5kqnyv.png"
+bird2.scale 0.5
+bird2.fd 500
+bird2.rt 90
+bird2.fd 500
+bird2.speed .5
+
+bird.lt 180
+bird.fd 1000
+bird2.rt 180
+bird2.fd 1000
+bird.speed .9
+bird2.speed .9
+
+winnie.lt 360
+bird.rt 360
+bird2.rt 360
+
+winnie.rt 360
+await done defer()
+winnie.rt 360
+await done defer()
+
+egg = new Sprite
+egg.wear "http://openclipart.org/image/2400px/svg_to_png/166320/1324219812.png"
+egg2 = new Sprite
+egg2.wear "http://openclipart.org/image/2400px/svg_to_png/166320/1324219812.png"
+egg.scale .03
+egg2.scale .03
+egg.fd 8000
+egg2.fd 8000
+egg.speed .9
+egg2.speed .9
+egg.lt 90
+egg2.rt 90
+egg.fd 3000
+egg2.fd 3000
+egg.rt 90
+egg2.lt 90
+
+egg.rt 90
+egg2.lt 90
+egg.fd 3000
+egg2.fd 3000
+egg.lt 90
+egg2.rt 90
+
+await done defer()
+winnie.rt 180
+
+egg2.wear "http://kindersay.com/files/images/fried-egg.png"
+egg.wear "http://kindersay.com/files/images/fried-egg.png"
+egg2.scale 8
+egg.scale 8
+
+egg2.rt 180
+egg.rt 180
+
+egg2.fd 800
+egg.fd 800
+</xmp>
+<script>
+var longcode = document.getElementsByTagName('xmp')[0].innerHTML;
+var pco = window.pco = new PencilCodeEmbed(document.getElementById('embed'));
+pco.on('load', function(c) {
+  pco.setCode(longcode);
+  pco.beginRun();
+});
+pco.beginLoad(longcode)
+</script>
+

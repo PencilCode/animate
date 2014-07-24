@@ -61,7 +61,10 @@ div[data-class] {
 <div id="links" style="display:none">
 <% for slide in (@document.slides or []): %>
   <div>
-  <a href="<%= slide.url %>" title="<%= slide.title or slide.url %>"></a>
+  <a href="<%= slide.url %>"
+ <% if slide.slidetype: %>
+   type="<%= slide.slidetype %>"
+ <% end %>title="<%= slide.title or slide.url %>"></a>
   <% if slide.description: %>
     <div data-class="description">
     <%- slide.description %>
